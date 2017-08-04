@@ -21,7 +21,13 @@ class DataTypeProcessor(data: scala.collection.mutable.Map[String , SolrInputDoc
 
   def dealWithInputData(): Unit = {
     val valueList = contentData.values.toList
-    
+    var modifiedData : scala.collection.mutable.Map[String , SolrInputDocument] = null
+    contentData.foreach(item => {
+      val name = item._1
+      val document = item._2
+
+      modifiedData += (name -> document)
+    })
   }
 
 }
