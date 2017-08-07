@@ -58,9 +58,14 @@ class DataTypeProcessor(rowDataList: util.List[RowData]){
   }
 
   def dealWithRowData(rowDataList: util.List[RowData]) : Unit = {
+    /*
+    * This function is waiting for completed, which is used to deal with
+    * the original data that is got from hbase and used to add indexer in
+    * solr.
+    * */
     val valueList = rowDataList
     for(item: RowData <- valueList){
-
+      item.getRow
     }
   }
 
