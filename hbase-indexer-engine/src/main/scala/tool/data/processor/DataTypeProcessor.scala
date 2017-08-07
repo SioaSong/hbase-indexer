@@ -1,8 +1,14 @@
 package tool.data.processor
 
+import java.text.{DateFormat, SimpleDateFormat}
+import java.util
+import java.util.{Calendar, Date, List, Locale}
+
+import com.ngdata.hbaseindexer.indexer.RowData
 import org.apache.solr.common.SolrInputDocument
 
 import scala.collection.immutable.HashMap
+import scala.util.matching.Regex
 
 /**
   * This class is used to modify the dataType from Hbase BYTE Array to more
@@ -16,18 +22,59 @@ import scala.collection.immutable.HashMap
   * and "org.scala-lang.modules". Besides, the plugin content between <build> && </build> are added content.
   * */
 
-class DataTypeProcessor(data: scala.collection.mutable.Map[String , SolrInputDocument]){
-  var contentData = data
+class DataTypeProcessor(rowDataList: util.List[RowData]){
 
-  def dealWithInputData(): Unit = {
-    val valueList = contentData.values.toList
-    var modifiedData : scala.collection.mutable.Map[String , SolrInputDocument] = null
+  var dataList: util.List[RowData] = rowDataList
+  var contentData: scala.collection.mutable.Map[String , SolrInputDocument] = null
+  val timePattern: Regex = "(\\d{4}(-|/)\\d{2}(-|/)\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\s?)".r
+
+  def this(data: scala.collection.mutable.Map[String , SolrInputDocument]) {
+    this(null)
+    contentData = data
+  }
+
+  def dealWithInputData(): scala.collection.mutable.Map[String , SolrInputDocument] = {
+    var modifiedDataMap : scala.collection.mutable.Map[String , SolrInputDocument] = null
     contentData.foreach(item => {
       val name = item._1
-      val document = item._2
-
-      modifiedData += (name -> document)
+      val document = new SolrInputDocument
+      val keyNames = item._2.getFieldNames
+      
+      for(name : String <- keyNames){
+        val itemValue = item._2.getFieldValue(name.toString).toString
+        if(timePattern.findAllIn(itemValue).nonEmpty){
+          val formatDateTime = Convert2Solr(itemValue,"yyyy-MM-dd HH:mm:ss")
+          document.addField(name, formatDateTime)
+        }else{
+          document.addField(name, item._2.getFieldValue(name.toString))
+        }
+      }
+      modifiedDataMap += (name -> document)
     })
+    return modifiedDataMap
+  }
+
+  def dealWithRowData(rowDataList: util.List[RowData]) : Unit = {
+    val valueList = rowDataList
+    for(item: RowData <- valueList){
+
+    }
+  }
+
+  def Convert2Solr(date: String, format: String): String = {
+    var value = ""
+    try {
+      val fmt = new SimpleDateFormat(format)
+      val _date = fmt.parse(date)
+      val calendar = Calendar.getInstance
+      calendar.setTime(_date)
+      calendar.add(10, -8)
+      val df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ROOT)
+      value = df.format(calendar.getTime)
+    } catch {
+      case var7: Exception =>
+    }
+    value
   }
 
 }

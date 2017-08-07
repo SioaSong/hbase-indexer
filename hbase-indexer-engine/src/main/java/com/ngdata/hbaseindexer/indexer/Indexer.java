@@ -153,40 +153,36 @@ public abstract class Indexer {
                     updateCollector.getDocumentsToAdd().size(), updateCollector.getIdsToDelete().size()));
         }
 
-        scala.collection.mutable.Map<String, SolrInputDocument> addDaraMap ;
-        scala.collection.mutable.Map<String, SolrInputDocument> deleteDataMap ;
+        scala.collection.mutable.Map<String, SolrInputDocument> addDataMap ;
+        scala.collection.mutable.Map<String, SolrInputDocument> modifiedAddDataMap ;
 
         if(!updateCollector.getDocumentsToAdd().isEmpty()) {
             Map<String, SolrInputDocument> updateContent = updateCollector.getDocumentsToAdd();
-            addDaraMap = JavaConverters.mapAsScalaMapConverter(updateContent).asScala();
-            DataTypeProcessor dataProcessor = new DataTypeProcessor(addDaraMap);
-            dataProcessor.dealWithInputData();
-        }
-        if (!updateCollector.getIdsToDelete().isEmpty()) {
-            Map<String, SolrInputDocument> updateContent = updateCollector.getDocumentsToAdd();
-            deleteDataMap = JavaConverters.mapAsScalaMapConverter(updateContent).asScala();
-            DataTypeProcessor dataProcessor = new DataTypeProcessor(deleteDataMap);
-            dataProcessor.dealWithInputData();
-        }
+            addDataMap = JavaConverters.mapAsScalaMapConverter(updateContent).asScala();
+            DataTypeProcessor dataProcessor = new DataTypeProcessor(addDataMap);
+            modifiedAddDataMap = dataProcessor.dealWithInputData();
+        }else{modifiedAddDataMap = null;}
 
         if (sharder == null) {
             // don't shard
-            if (!updateCollector.getDocumentsToAdd().isEmpty()) {
-                solrWriter.add(-1, 121updateCollector.getDocumentsToAdd());
+            if (modifiedAddDataMap != null && !modifiedAddDataMap.isEmpty()) {
+                //solrWriter.add(-1, updateCollector.getDocumentsToAdd());
+                solrWriter.add(-1, JavaConverters.mapAsJavaMapConverter(modifiedAddDataMap).asJava());
             }
             if (!updateCollector.getIdsToDelete().isEmpty()) {
-                solrWriter.deleteById(-1, 121updateCollector.getIdsToDelete());
+                solrWriter.deleteById(-1, updateCollector.getIdsToDelete());
             }
         } else {
             // with sharding
-            if (!updateCollector.getDocumentsToAdd().isEmpty()) {
-                Map<Integer, Map<String, SolrInputDocument>> addsByShard = shardByMapKey(121updateCollector.getDocumentsToAdd());
+            if (modifiedAddDataMap != null && !modifiedAddDataMap.isEmpty()) {
+                //Map<Integer, Map<String, SolrInputDocument>> addsByShard = shardByMapKey(updateCollector.getDocumentsToAdd());
+                Map<Integer, Map<String, SolrInputDocument>> addsByShard = shardByMapKey(JavaConverters.mapAsJavaMapConverter(modifiedAddDataMap).asJava());
                 for (Map.Entry<Integer, Map<String, SolrInputDocument>> entry : addsByShard.entrySet()) {
                     solrWriter.add(entry.getKey(), entry.getValue());
                 }
             }
             if (!updateCollector.getIdsToDelete().isEmpty()) {
-                Map<Integer, Collection<String>> idsByShard = shardByValue(121updateCollector.getIdsToDelete());
+                Map<Integer, Collection<String>> idsByShard = shardByValue(updateCollector.getIdsToDelete());
                 for (Map.Entry<Integer, Collection<String>> entry : idsByShard.entrySet()) {
                     solrWriter.deleteById(entry.getKey(), Lists.newArrayList(entry.getValue()));
                 }
