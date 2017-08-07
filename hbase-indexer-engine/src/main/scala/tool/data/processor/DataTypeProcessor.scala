@@ -1,25 +1,28 @@
 package tool.data.processor
 
-import java.text.{DateFormat, SimpleDateFormat}
+import java.text.{SimpleDateFormat}
 import java.util
-import java.util.{Calendar, Date, List, Locale}
+import java.util.{Calendar, Locale}
 
 import com.ngdata.hbaseindexer.indexer.RowData
 import org.apache.solr.common.SolrInputDocument
 
-import scala.collection.immutable.HashMap
 import scala.util.matching.Regex
 
 /**
   * This class is used to modify the dataType from Hbase BYTE Array to more
   * kinds of solr data type.
-  */
+  * */
 
 /**
   *Two Maven pom fields are modified:
   * First: the main pom.xml under the project. A dependency sentence is added as "org.scala-lang".
   * Second: a package pom.xml under the hbase-indexer-engine. Two dependency sentences are added as "org.scala-lang"
   * and "org.scala-lang.modules". Besides, the plugin content between <build> && </build> are added content.
+  * */
+
+/**
+  * Indexer.java is modified to adjust the function of this Class.(In function indexRowData)
   * */
 
 class DataTypeProcessor(rowDataList: util.List[RowData]){
