@@ -1,12 +1,13 @@
 package tool.data.processor
 
-import java.text.{SimpleDateFormat}
+import java.text.SimpleDateFormat
 import java.util
 import java.util.{Calendar, Locale}
 
 import com.ngdata.hbaseindexer.indexer.RowData
 import org.apache.solr.common.SolrInputDocument
 
+import scala.collection.JavaConverters
 import scala.util.matching.Regex
 
 /**
@@ -31,8 +32,8 @@ class DataTypeProcessor(rowDataList: util.List[RowData]){
   var contentData: scala.collection.mutable.Map[String , SolrInputDocument] = null
   val timePattern: Regex = "(\\d{4}(-|/)\\d{2}(-|/)\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\s?)".r
 
-  def this(data: scala.collection.mutable.Map[String , SolrInputDocument]) {
-    this(null)
+  def this(data: scala.collection.mutable.Map[String , SolrInputDocument], dataList: util.List[RowData]) {
+    this(dataList)
     contentData = data
   }
 

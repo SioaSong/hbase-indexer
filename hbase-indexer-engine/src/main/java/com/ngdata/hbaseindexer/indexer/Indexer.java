@@ -159,7 +159,7 @@ public abstract class Indexer {
         if(!updateCollector.getDocumentsToAdd().isEmpty()) {
             Map<String, SolrInputDocument> updateContent = updateCollector.getDocumentsToAdd();
             addDataMap = JavaConverters.mapAsScalaMapConverter(updateContent).asScala();
-            DataTypeProcessor dataProcessor = new DataTypeProcessor(addDataMap);
+            DataTypeProcessor dataProcessor = new DataTypeProcessor(addDataMap, rowDataList);
             modifiedAddDataMap = dataProcessor.dealWithInputData();
         }else{modifiedAddDataMap = null;}
 
